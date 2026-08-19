@@ -1,0 +1,25 @@
+{
+  "name": "peerceptiv-phase3-assignment2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "types": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iltStudent07/Peerceptiv-Phase3-Assignment2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iltStudent07/Peerceptiv-Phase3-Assignment2/issues"
+  },
+  "homepage": "https://github.com/iltStudent07/Peerceptiv-Phase3-Assignment2#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.9.3"
+  }
+}
