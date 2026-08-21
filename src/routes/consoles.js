@@ -1,5 +1,7 @@
 import express from 'express'
 import Console from "../models/Console.js"
+import authenticate from "../middleware/auth.js"
+import { authorizeConsoleOwnerOrAdmin } from "../middleware/authorize.js";
 
 const router = express.Router()
 
@@ -69,58 +71,58 @@ router.get("/:id", async (req, res) => {
     }
 })
 
-// POST /api/consoles - Create a product
-router.post("/", async (req, res) => {
-    try {
-        const console = await Console.create(req.body)
-        res.status(201).json(console)
-    } catch (err) {
-        if (err.name === "ValidationError") {
-            const messages = Object.values(err.errors).map((e) => e.message)
-            return res.status(400).json({ error: "Validation failed", details: messages })
-        }
-        res.status(500).json({ error: err.message })
+// POST /api/consoles - Create a console (protected)
+router.post("/", authenticate, async (req, res) => {
+  try {
+    const console = await Console.create({ ...req.body, owner: req.user._id })
+    res.status(201).json(console)
+  } catch (err) {
+    if (err.name === "ValidationError") {
+        const messages = Object.values(err.errors).map((e) => e.message)
+        return res.status(400).json({ error: "Validation failed", details: messages })
     }
+    res.status(500).json({ error: err.message })
+  }
 })
 
-// PUT /api/products/:id - Update a product
-router.put("/:id", async (req, res) => {
-    try {
-        const console = await Console.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { returnDocument: "after", runValidators: true }
-        )
-        if (!console) {
-            return res.status(404).json({ error: "Product not found" })
-        }
-        res.json(console)
-    } catch (err) {
-        if (err.name === "ValidationError") {
-            const messages = Object.values(err.errors).map((e) => e.message)
-            return res.status(400).json({ error: "Validation failed", details: messages })
-        }
-        if (err.name === "CastError") {
-            return res.status(400).json({ error: "Invalid console ID format" })
-        }
-        res.status(500).json({ error: err.message })
+// PUT /api/consoles/:id - Update a console (protected)
+router.put("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res) => {
+  try {
+    const console = await Console.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { returnDocument: "after", runValidators: true }
+    )
+    if (!console) {
+        return res.status(404).json({ error: "Product not found" })
     }
+    res.json(console)
+  } catch (err) {
+    if (err.name === "ValidationError") {
+        const messages = Object.values(err.errors).map((e) => e.message)
+        return res.status(400).json({ error: "Validation failed", details: messages })
+    }
+    if (err.name === "CastError") {
+        return res.status(400).json({ error: "Invalid console ID format" })
+    }
+    res.status(500).json({ error: err.message })
+  }
 })
 
-// DELETE /api/consoles/:id - Delete a console
-router.delete("/:id", async (req, res) => {
-    try {
-        const console = await Console.findByIdAndDelete(req.params.id)
-        if (!console) {
-            return res.status(404).json({ error: "Console not found" })
-        }
-        res.status(204).send()
-    } catch (err) {
-        if (err.name === "CastError") {
-            return res.status(400).json({ error: "Invalid product ID format" })
-        }
-        res.status(500).json({ error: err.message })
+// DELETE /api/consoles/:id - Delete a console (protected)
+router.delete("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res) => {
+  try {
+    const console = await Console.findByIdAndDelete(req.params.id)
+    if (!console) {
+        return res.status(404).json({ error: "Console not found" })
     }
+    res.status(204).send()
+  } catch (err) {
+    if (err.name === "CastError") {
+        return res.status(400).json({ error: "Invalid product ID format" })
+    }
+    res.status(500).json({ error: err.message })
+  }
 })
 
 export default router

@@ -1,7 +1,8 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import connectDB from "./config/db.js"
+import connectDB from './config/db.js'
+import authRoutes from './src/routes/auth.js'
 import consoleRoutes from './src/routes/consoles.js'
 
 const app = express()
@@ -11,14 +12,15 @@ app.use(cors())
 app.use(express.json())
 
 // Routes
-app.use("/api/consoles", consoleRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/consoles', consoleRoutes)
 
 // Health Check
 app.get("/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() })
 })
 
-// Start server
+// Server
 const PORT = process.env.PORT || 4000
 
 connectDB().then(() => {
