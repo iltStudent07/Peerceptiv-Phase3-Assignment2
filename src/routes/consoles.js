@@ -6,7 +6,7 @@ const router = express.Router()
 // GET /api/consoles - List with filtering, sorting, pagination
 router.get("/", async (req, res) => {
     try {
-        const { category, minPrice, maxPrice, search, sort, page = 1, limit = 10 } = req.query
+        const { brand, minPrice, maxPrice, search, sort, page = 1, limit = 10 } = req.query
 
         // Filter Object
         const filter = {}
@@ -58,12 +58,12 @@ router.get("/:id", async (req, res) => {
     try {
         const console = await Console.findById(req.params.id)
         if (!console) {
-            return res.status(404).json({ error: "Product not found" })
+            return res.status(404).json({ error: "Console not found" })
         }
         res.json(console)
     } catch (err) {
         if (err.name === "CastError") {
-            return res.status(400).json({ error: "Invalid product ID format" })
+            return res.status(400).json({ error: "Invalid console ID format" })
         }
         res.status(500).json({ error: err.message })
     }
@@ -110,7 +110,7 @@ router.put("/:id", async (req, res) => {
 // DELETE /api/consoles/:id - Delete a console
 router.delete("/:id", async (req, res) => {
     try {
-        const console = await Console.findByIDAndDelete(req.params.id)
+        const console = await Console.findByIdAndDelete(req.params.id)
         if (!console) {
             return res.status(404).json({ error: "Console not found" })
         }
