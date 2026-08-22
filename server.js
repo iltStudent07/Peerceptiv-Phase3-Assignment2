@@ -4,6 +4,7 @@ import cors from 'cors'
 import connectDB from './config/db.js'
 import authRoutes from './src/routes/auth.js'
 import consoleRoutes from './src/routes/consoles.js'
+import { notFound, errorHandler } from './src/middleware/errorHandler.js'
 
 const app = express()
 
@@ -19,6 +20,9 @@ app.use('/api/consoles', consoleRoutes)
 app.get("/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() })
 })
+
+app.use(notFound)
+app.use(errorHandler)
 
 // Server
 const PORT = process.env.PORT || 4000

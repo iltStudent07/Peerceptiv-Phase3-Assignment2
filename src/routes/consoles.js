@@ -2,11 +2,12 @@ import express from 'express'
 import Console from "../models/Console.js"
 import authenticate from "../middleware/auth.js"
 import { authorizeConsoleOwnerOrAdmin } from "../middleware/authorize.js";
+import AppError from '../utils/AppError.js'
 
 const router = express.Router()
 
 // GET /api/consoles - List with filtering, sorting, pagination
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     try {
         const { brand, minPrice, maxPrice, search, sort, page = 1, limit = 10 } = req.query
 
@@ -36,7 +37,7 @@ router.get("/", async (req, res) => {
         // Pagination
         const skip = (parseInt(page) - 1) * parseInt(limit)
         const total = await Console.countDocuments(filter)
-        const consoles = await Console.find().populate("owner", "name")
+        const consoles = await Console.find(filter).populate("owner", "name")
           .sort(sortObj)
           .skip(skip)
           .limit(limit)
@@ -51,43 +52,36 @@ router.get("/", async (req, res) => {
             },
         })
     } catch (err) {
-        res.status(500).json({ error: err.message })
+      next(err)
     }
 })
 
 // GET /api/consoles/:id - Get one console
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
     try {
         const consoleDoc = await Console.findById(req.params.id)
           .populate("owner", "username");
         if (!consoleDoc) {
-            return res.status(404).json({ error: "Console not found" })
+      throw new AppError('Console not found', 404)
         }
         res.json(consoleDoc)
     } catch (err) {
-        if (err.name === "CastError") {
-            return res.status(400).json({ error: "Invalid console ID format" })
-        }
-        res.status(500).json({ error: err.message })
+    next(err)
     }
 })
 
 // POST /api/consoles - Create a console (protected)
-router.post("/", authenticate, async (req, res) => {
+router.post("/", authenticate, async (req, res, next) => {
   try {
     const console = await Console.create({ ...req.body, owner: req.user._id })
     res.status(201).json(console)
   } catch (err) {
-    if (err.name === "ValidationError") {
-        const messages = Object.values(err.errors).map((e) => e.message)
-        return res.status(400).json({ error: "Validation failed", details: messages })
-    }
-    res.status(500).json({ error: err.message })
+    next(err)
   }
 })
 
 // PUT /api/consoles/:id - Update a console (protected)
-router.put("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res) => {
+router.put("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res, next) => {
   try {
     const console = await Console.findByIdAndUpdate(
       req.params.id,
@@ -95,34 +89,24 @@ router.put("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res) 
       { returnDocument: "after", runValidators: true }
     )
     if (!console) {
-        return res.status(404).json({ error: "Product not found" })
+        throw new AppError('Console not found', 404)
     }
     res.json(console)
   } catch (err) {
-    if (err.name === "ValidationError") {
-        const messages = Object.values(err.errors).map((e) => e.message)
-        return res.status(400).json({ error: "Validation failed", details: messages })
-    }
-    if (err.name === "CastError") {
-        return res.status(400).json({ error: "Invalid console ID format" })
-    }
-    res.status(500).json({ error: err.message })
+    next(err)
   }
 })
 
 // DELETE /api/consoles/:id - Delete a console (protected)
-router.delete("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res) => {
+router.delete("/:id", authenticate, authorizeConsoleOwnerOrAdmin, async (req, res, next) => {
   try {
     const console = await Console.findByIdAndDelete(req.params.id)
     if (!console) {
-        return res.status(404).json({ error: "Console not found" })
+        throw new AppError('Console not found', 404)
     }
     res.status(204).send()
   } catch (err) {
-    if (err.name === "CastError") {
-        return res.status(400).json({ error: "Invalid product ID format" })
-    }
-    res.status(500).json({ error: err.message })
+    next(err)
   }
 })
 
