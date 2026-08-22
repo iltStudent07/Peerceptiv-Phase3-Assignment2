@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
             if (maxPrice) filter.price.$lte = parseFloat(maxPrice)
         }
         if (search) {
-            const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\S&")
+            const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
             filter.name = { $regex: escaped, $options: "i" }
         }
 
@@ -36,10 +36,10 @@ router.get("/", async (req, res) => {
         // Pagination
         const skip = (parseInt(page) - 1) * parseInt(limit)
         const total = await Console.countDocuments(filter)
-        const consoles = await Console.find(filter)
-            .sort(sortObj)
-            .skip(skip)
-            .limit(parseInt(limit))
+        const consoles = await Console.find().populate("owner", "name")
+          .sort(sortObj)
+          .skip(skip)
+          .limit(limit)
 
         res.json({
             data: consoles,
@@ -58,11 +58,12 @@ router.get("/", async (req, res) => {
 // GET /api/consoles/:id - Get one console
 router.get("/:id", async (req, res) => {
     try {
-        const console = await Console.findById(req.params.id)
-        if (!console) {
+        const consoleDoc = await Console.findById(req.params.id)
+          .populate("owner", "username");
+        if (!consoleDoc) {
             return res.status(404).json({ error: "Console not found" })
         }
-        res.json(console)
+        res.json(consoleDoc)
     } catch (err) {
         if (err.name === "CastError") {
             return res.status(400).json({ error: "Invalid console ID format" })
