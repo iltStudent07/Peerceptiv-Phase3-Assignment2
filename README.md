@@ -1,4 +1,4 @@
-# Peerceptiv-Phase3-Assignment2
+# Peerceptiv Phase 3 Assignment 2
 
 Express + MongoDB API for managing game consoles with JWT authentication, Mongoose validation, and query features (filtering, sorting, pagination).
 
@@ -292,4 +292,4 @@ Example response (`400`):
 
 ## Repo Author
 
-- iltStudent07 
+- iltStudent07
