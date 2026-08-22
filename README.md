@@ -27,7 +27,7 @@ Express + MongoDB API for managing game consoles with JWT authentication, Mongoo
 ## 1) Clone and Install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/iltStudent07/Peerceptiv-Phase3-Assignment2.git
 cd Peerceptiv-Phase3-Assignment2
 npm install
 ```
@@ -38,7 +38,7 @@ Create a `.env` file in the project root:
 
 ```env
 PORT=4000
-MONGODB_URI=mongodb://127.0.0.1:27017/peerceptiv_phase3
+MONGODB_URI=mongodb://127.0.0.1:27017/Peerceptiv-Phase3-Assignment2
 JWT_SECRET=replace_with_a_long_random_secret
 JWT_EXPIRES_IN=1d
 ```
