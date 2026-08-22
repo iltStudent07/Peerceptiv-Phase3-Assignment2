@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+export const CONSOLE_BRANDS = ["Nintendo", "Sony", "Microsoft", "Valve"]
+
 const consoleSchema = new mongoose.Schema(
     {
         name: {
@@ -12,7 +14,7 @@ const consoleSchema = new mongoose.Schema(
             type: String,
             required: [true, "Brand name is required"],
             enum: {
-                values: ["Nintendo", "Sony", "Microsoft", "Valve"],
+                values: CONSOLE_BRANDS,
                 message: "{VALUE} is not a valid brand option",
             },
         },
